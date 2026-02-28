@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.so
+.venv/
+venv/
+env/
+
+# MLflow (local server data)
+mlflow.db
+mlruns/
+
+# Model artifacts (large; train to regenerate or use MLflow)
+*.pkl
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Optional: keep runs.json for demo; if you prefer not to commit it, uncomment:
+# experiments/runs.json

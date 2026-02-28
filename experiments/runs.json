@@ -1,0 +1,72 @@
+[
+  {
+    "run_id": "20260206_175140",
+    "timestamp": "20260206_175140",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260206_175140.pkl",
+    "metric": 3.3635497913239374
+  },
+  {
+    "run_id": "20260206_175154",
+    "timestamp": "20260206_175154",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260206_175154.pkl",
+    "metric": 3.3635497913239374
+  },
+  {
+    "run_id": "20260206_182101",
+    "timestamp": "20260206_182101",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260206_182101.pkl",
+    "metric": 3.3635497913239374
+  },
+  {
+    "run_id": "20260206_182107",
+    "timestamp": "20260206_182107",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260206_182107.pkl",
+    "metric": 3.3635497913239374
+  },
+  {
+    "run_id": "20260212_111722",
+    "timestamp": "20260212_111722",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260212_111722.pkl",
+    "metric": 3.3635497913239374
+  },
+  {
+    "run_id": "20260212_112534",
+    "timestamp": "20260212_112534",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260212_112534.pkl",
+    "metric": 3.3635497913239374
+  },
+  {
+    "run_id": "20260212_112558",
+    "timestamp": "20260212_112558",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260212_112558.pkl",
+    "metric": 3.3635497913239374
+  },
+  {
+    "run_id": "20260214_164818",
+    "timestamp": "20260214_164818",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260214_164818.pkl",
+    "metric": 3.3635497913239374
+  },
+  {
+    "run_id": "20260214_164839",
+    "timestamp": "20260214_164839",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260214_164839.pkl",
+    "metric": 3.3635497913239374
+  },
+  {
+    "run_id": "20260214_170817",
+    "timestamp": "20260214_170817",
+    "data_path": "data/train.csv",
+    "model_path": "models/model_20260214_170817.pkl",
+    "metric": 3.3635497913239374
+  }
+]
