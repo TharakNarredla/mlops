@@ -1,0 +1,18 @@
+# Same as Dockerfile.inference but bakes models/ and experiments/ into the image
+# so the Pod is self-contained (no volume mount needed in minikube).
+# Build inside minikube: eval $(minikube docker-env) && docker build -f Dockerfile.inference.k8s -t mlops-inference .
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY src/ ./src/
+COPY models/ ./models/
+COPY experiments/ ./experiments/
+
+EXPOSE 8000
+
+CMD ["python3", "-m", "src.serve.app"]

@@ -1,0 +1,6 @@
+# Don't copy these into the image (saves time and size)
+# Note: *.pkl and experiments/runs.json are NOT excluded so Dockerfile.inference.k8s can bake them in.
+__pycache__
+*.pyc
+.git
+.DS_Store

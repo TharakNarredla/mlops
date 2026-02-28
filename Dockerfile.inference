@@ -1,0 +1,18 @@
+# Inference app: same Flask app, runs in a container.
+# Build: docker build -f Dockerfile.inference -t mlops-inference .
+# Run: see README or Phase 1 guide.
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy app code (models/ and experiments/ will be mounted at run time)
+COPY src/ ./src/
+
+EXPOSE 8000
+
+CMD ["python3", "-m", "src.serve.app"]
