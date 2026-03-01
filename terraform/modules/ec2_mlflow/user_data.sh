@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 yum update -y
-yum install -y python3.11 python3.11-pip
+yum install -y python3 pip3
 
 pip3 install mlflow boto3
 
