@@ -13,3 +13,13 @@ output "cluster_certificate_authority_data" {
   value       = aws_eks_cluster.main.certificate_authority[0].data
   sensitive   = true
 }
+
+output "vpc_id" {
+  description = "VPC ID (shared with EC2 for MLflow)"
+  value       = aws_vpc.main.id
+}
+
+output "public_subnet_ids" {
+  description = "Public subnet IDs"
+  value       = aws_subnet.public[*].id
+}

@@ -18,3 +18,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "ec2_key_name" {
+  description = "SSH key pair for EC2 (MLflow). Create in EC2 console if needed."
+  type        = string
+  default     = ""
+}
