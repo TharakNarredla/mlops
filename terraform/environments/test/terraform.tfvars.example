@@ -1,0 +1,8 @@
+environment  = "test"
+project_name = "mlops"
+aws_region   = "eu-central-1"
+
+tags = {
+  Environment = "test"
+  Purpose     = "mlops-pipeline"
+}

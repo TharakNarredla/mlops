@@ -23,3 +23,11 @@ mlruns/
 
 # Optional: keep runs.json for demo; if you prefer not to commit it, uncomment:
 # experiments/runs.json
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+terraform.tfvars
+!terraform.tfvars.example
