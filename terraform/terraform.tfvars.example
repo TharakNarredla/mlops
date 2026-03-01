@@ -1,0 +1,10 @@
+# Copy to terraform.tfvars and fill in your values.
+# Never commit terraform.tfvars (it may contain sensitive data).
+
+environment  = "test"
+project_name = "mlops"
+aws_region   = "eu-central-1"
+
+tags = {
+  Owner = "mlops-team"
+}
