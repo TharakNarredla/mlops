@@ -2,11 +2,13 @@
 
 An end-to-end machine learning pipeline that takes data through training, experiment tracking, containerization, and deployment to Kubernetes. Built to demonstrate production-ready MLOps practices.
 
+![Architecture](docs/architecture.png)
+
 ---
 
 ## What Is This Project?
 
-This repository contains a complete MLOps workflow: from raw data and training scripts to a deployed inference API on Kubernetes. It shows how to version models, track experiments with MLflow, package the serving app in Docker, and deploy it with Kubernetes—including rollback without code changes.
+This project builds an MLOps pipeline from data to API serving: training with MLflow, model artifacts in S3, Docker images in ECR, and inference API on Kubernetes (EKS). The infrastructure is designed to be provisioned with Terraform. CI/CD (GitHub Actions) builds images on code push and deploys to EKS.
 
 ---
 
@@ -121,7 +123,7 @@ kubectl rollout restart deployment/mlops-inference
 
 - `docs/api.md` — API contract and endpoints
 - `docs/ARCHITECTURE.md` — Pipeline overview
-- `docs/MLFLOW.md` — MLflow usage in this project
+- `docs/MLFLOW.md` — MLflow usage
 - `docs/DOCKER.md` — Docker setup
 - `docs/KUBERNETES.md` — Kubernetes deployment
 
