@@ -1,8 +1,6 @@
-# MODEL_RUN_ID: empty = use latest from runs.json; set to a run_id for rollback.
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mlops-inference-config
 data:
-  MODEL_RUN_ID: "20260206_175154"
-  # For rollback: set to e.g. "20260206_175154" then: kubectl rollout restart deployment/mlops-inference
+  MODEL_RUN_ID: ""

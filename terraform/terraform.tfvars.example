@@ -1,12 +1,8 @@
-# Copy to terraform.tfvars and fill in your values.
-# Never commit terraform.tfvars (it may contain sensitive data).
-
 environment  = "test"
 project_name = "mlops"
 aws_region   = "eu-central-1"
 
-# Optional: SSH key for EC2 (MLflow). Create in EC2 console if you need SSH access.
-# ec2_key_name = "my-key"
+ec2_key_name = ""
 
 tags = {
   Owner = "mlops-team"

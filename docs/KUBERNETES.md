@@ -22,12 +22,19 @@ docker build -f Dockerfile.inference.k8s -t mlops-inference:latest .
 
 ---
 
-## Deploy
+## Deploy (raw manifests)
 
 ```bash
 kubectl apply -f k8s/configmap.yaml
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
+kubectl apply -f k8s/hpa.yaml
+```
+
+## Deploy (Helm)
+
+```bash
+helm install mlops-inference helm/mlops-inference
 ```
 
 ---

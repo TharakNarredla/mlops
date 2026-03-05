@@ -30,4 +30,6 @@ mlruns/
 *.tfstate.*
 .terraform.lock.hcl
 terraform.tfvars
+backend.tfvars
 !terraform.tfvars.example
+!backend.tfvars.example
