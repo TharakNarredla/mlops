@@ -83,6 +83,18 @@ def metrics():
     }), 200
 
 
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"}), 200
+
+
+@app.route("/ready", methods=["GET"])
+def ready():
+    if get_model() is not None and get_scaler() is not None:
+        return jsonify({"status": "ready"}), 200
+    return jsonify({"status": "not_ready"}), 503
+
+
 @app.route("/reload", methods=["GET"])
 def reload():
     """

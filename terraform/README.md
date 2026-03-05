@@ -47,13 +47,15 @@ Matches the architecture diagram:
 ```bash
 cd terraform
 
-# Copy and edit variables
 cp terraform.tfvars.example terraform.tfvars
+cp backend.tfvars.example backend.tfvars
 
-# Or use environment-specific vars (copy .example to .tfvars first)
-terraform plan -var-file=environments/test/terraform.tfvars
-terraform apply -var-file=environments/test/terraform.tfvars
+terraform init -backend-config=backend.tfvars
+terraform plan -var-file=environments/test/terraform.tfvars.example
+terraform apply -var-file=environments/test/terraform.tfvars.example
 ```
+
+Backend requires S3 bucket and DynamoDB table for state locking. Create them before first init, or use local backend by omitting `-backend-config`.
 
 ## Outputs
 
