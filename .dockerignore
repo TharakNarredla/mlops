@@ -1,5 +1,5 @@
 # Don't copy these into the image (saves time and size)
-# Note: *.pkl and experiments/runs.json are NOT excluded so Dockerfile.inference.k8s can bake them in.
+# Note: *.pkl and experiments/runs.json are not committed; bake them in only for local K8s builds.
 __pycache__
 *.pyc
 .git

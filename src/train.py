@@ -71,6 +71,7 @@ if os.path.exists(path_to_experiments_file):
 else:
     runs = []
 runs.append(record)
+os.makedirs(os.path.dirname(path_to_experiments_file), exist_ok=True)
 with open(path_to_experiments_file, "w") as f:
     json.dump(runs, f, indent=2)
 print("Logged to:", path_to_experiments_file)
