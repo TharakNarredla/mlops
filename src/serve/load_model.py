@@ -3,8 +3,9 @@ Model selection: env MODEL_PATH (full path to .pkl), or MODEL_RUN_ID (run_id fro
 runs.json), or default = latest (last run in runs.json). Load artifact and expose
 model, scaler, and loaded version for the predict endpoint and rollback.
 """
-import os
 import json
+import os
+
 import joblib
 
 # In-memory state after load_model() is called
@@ -102,7 +103,8 @@ def load_model(force_latest=False):
     """
     Load the artifact at get_model_path() into memory. Sets _model, _scaler, _loaded_version.
     Call once at server startup (and on reload for rollback). On failure, all set to None.
-    If force_latest=True, always load the latest run from runs.json (ignore MODEL_PATH/MODEL_RUN_ID).
+    If force_latest=True, always load the latest run from runs.json (ignore
+    MODEL_PATH/MODEL_RUN_ID).
     """
     global _model, _scaler, _loaded_version
     path = get_model_path_latest() if force_latest else get_model_path()
@@ -140,5 +142,8 @@ def get_scaler():
 
 
 def get_loaded_version():
-    """Return the loaded model version string (e.g. run_id from filename), or None. For API and rollback."""
+    """Return the loaded model version string (e.g. run_id from filename), or None.
+
+    Used by the API and by rollback.
+    """
     return _loaded_version

@@ -1,7 +1,9 @@
-from flask import Flask, request, jsonify
-import numpy as np
 import time
-from .load_model import load_model, get_model, get_scaler, get_loaded_version
+
+import numpy as np
+from flask import Flask, jsonify, request
+
+from .load_model import get_loaded_version, get_model, get_scaler, load_model
 
 app = Flask(__name__)
 _total_requests = 0
@@ -99,7 +101,8 @@ def ready():
 def reload():
     """
     Reload model from disk. By default uses same env (MODEL_PATH, MODEL_RUN_ID, or latest).
-    Add ?latest=1 to force loading the latest run from runs.json (e.g. after training without restart).
+    Add ?latest=1 to force loading the latest run from runs.json (e.g. after training
+    without restart).
     """
     force_latest = request.args.get("latest", "").strip().lower() in ("1", "true", "yes")
     load_model(force_latest=force_latest)
