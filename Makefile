@@ -22,7 +22,7 @@ train:
 	.venv/bin/python src/train.py
 
 run:
-	.venv/bin/python -m src.serve.app
+	.venv/bin/uvicorn src.serve.app:app --host 0.0.0.0 --port 8000
 
 clean:
 	rm -rf .venv .pytest_cache .ruff_cache
