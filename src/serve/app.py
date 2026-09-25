@@ -4,9 +4,19 @@ from contextlib import asynccontextmanager
 import numpy as np
 from fastapi import FastAPI, Request
 from fastapi.concurrency import run_in_threadpool
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from .load_model import get_loaded_version, get_model, get_scaler, load_model
+from .schemas import (
+    ErrorResponse,
+    HealthResponse,
+    MetricsResponse,
+    PredictRequest,
+    PredictResponse,
+    ReadyResponse,
+    ReloadResponse,
+)
 
 _total_requests = 0
 _errors_400 = 0
@@ -25,48 +35,40 @@ async def lifespan(app):
 app = FastAPI(title="MLOps Inference API", lifespan=lifespan)
 
 
+@app.exception_handler(RequestValidationError)
+async def invalid_input_handler(request: Request, exc: RequestValidationError):
+    """Keep the original API contract: bad input -> 400 {"error": "invalid_input", ...}."""
+    global _total_requests, _errors_400
+    _total_requests += 1
+    _errors_400 += 1
+    first = exc.errors()[0]
+    if first["type"] == "json_invalid":
+        message = "body must be valid JSON"
+    else:
+        where = ".".join(str(p) for p in first["loc"] if p != "body")
+        message = f"{where}: {first['msg']}" if where else first["msg"]
+    return JSONResponse({"error": "invalid_input", "message": message}, status_code=400)
+
+
 def _ensure_model():
     """Retry loading if the model was missing at startup (e.g. trained after the pod started)."""
     if get_model() is None:
         load_model()
 
 
-def _validate_features(data):
-    if data is None or not isinstance(data, dict):
-        return False, "body must be JSON object"
-    features = data.get("features")
-    if features is None:
-        return False, "missing 'features'"
-    if not isinstance(features, list):
-        return False, "features must be a list"
-    if len(features) != 13:
-        return False, "features must be exactly 13 numbers"
-    try:
-        arr = np.array(features, dtype=float)
-    except (ValueError, TypeError):
-        return False, "features must be numbers"
-    if not np.isfinite(arr).all():
-        return False, "features must be finite (no NaN/Inf)"
-    return True, arr.reshape(1, -1)
-
-
 def _predict(model, scaler, X):
     return float(model.predict(scaler.transform(X))[0])
 
 
-@app.post("/predict")
-async def predict(request: Request):
-    global _total_requests, _errors_400, _errors_500, _latencies
+@app.post(
+    "/predict",
+    response_model=PredictResponse,
+    responses={400: {"model": ErrorResponse}, 500: {"model": ErrorResponse}},
+)
+async def predict(req: PredictRequest):
+    global _total_requests, _errors_500, _latencies
     start_time = time.time()
     _total_requests += 1
-    try:
-        body = await request.json()
-    except ValueError:
-        body = None
-    ok, payload = _validate_features(body)
-    if not ok:
-        _errors_400 += 1
-        return JSONResponse({"error": "invalid_input", "message": payload}, status_code=400)
 
     _ensure_model()
     model = get_model()
@@ -77,9 +79,10 @@ async def predict(request: Request):
             {"error": "prediction_failed", "message": "model not loaded"}, status_code=500
         )
 
+    X = np.array(req.features, dtype=float).reshape(1, -1)
     try:
         # sklearn is CPU-bound and blocking, so keep it off the event loop
-        prediction = await run_in_threadpool(_predict, model, scaler, payload)
+        prediction = await run_in_threadpool(_predict, model, scaler, X)
     except Exception as e:
         _errors_500 += 1
         return JSONResponse({"error": "prediction_failed", "message": str(e)}, status_code=500)
@@ -87,11 +90,10 @@ async def predict(request: Request):
     _latencies.append(time.time() - start_time)
     if len(_latencies) > _MAX_LATENCIES:
         _latencies = _latencies[-_MAX_LATENCIES:]
-    version = get_loaded_version() or "unknown"
-    return {"prediction": prediction, "model_version": version}
+    return {"prediction": prediction, "model_version": get_loaded_version() or "unknown"}
 
 
-@app.get("/metrics")
+@app.get("/metrics", response_model=MetricsResponse)
 def metrics():
     if _latencies:
         avg_sec = sum(_latencies) / len(_latencies)
@@ -109,12 +111,12 @@ def metrics():
     }
 
 
-@app.get("/health")
+@app.get("/health", response_model=HealthResponse)
 def health():
     return {"status": "ok"}
 
 
-@app.get("/ready")
+@app.get("/ready", response_model=ReadyResponse, responses={503: {"model": ReadyResponse}})
 def ready():
     _ensure_model()
     if get_model() is not None and get_scaler() is not None:
@@ -122,7 +124,9 @@ def ready():
     return JSONResponse({"status": "not_ready"}, status_code=503)
 
 
-@app.get("/reload")
+@app.get(
+    "/reload", response_model=ReloadResponse, responses={500: {"model": ErrorResponse}}
+)
 def reload(latest: str = ""):
     """
     Reload model from disk. By default uses same env (MODEL_PATH, MODEL_RUN_ID, or latest).

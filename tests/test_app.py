@@ -83,9 +83,43 @@ def test_predict_invalid_input_returns_400(client, payload):
     assert r.json()["error"] == "invalid_input"
 
 
+def test_predict_invalid_input_message_names_the_field(client):
+    body = client.post("/predict", json={"features": [1, 2, 3]}).json()
+    assert body["error"] == "invalid_input"
+    assert body["message"].startswith("features:")
+
+
+@pytest.mark.parametrize("bad", ["1.5", None, True])
+def test_predict_rejects_non_numbers(client, bad):
+    r = client.post("/predict", json={"features": [bad] + FEATURES[1:]})
+    assert r.status_code == 400
+
+
+def test_predict_rejects_nan(client):
+    r = client.post(
+        "/predict",
+        content=b'{"features": [NaN, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}',
+        headers={"content-type": "application/json"},
+    )
+    assert r.status_code == 400
+
+
+def test_predict_ignores_extra_keys(client):
+    r = client.post("/predict", json={"features": FEATURES, "note": "hi"})
+    assert r.status_code == 200
+
+
+def test_openapi_documents_schemas(client):
+    spec = client.get("/openapi.json").json()
+    assert "PredictRequest" in spec["components"]["schemas"]
+    assert "ErrorResponse" in spec["components"]["schemas"]
+    assert "400" in spec["paths"]["/predict"]["post"]["responses"]
+
+
 def test_predict_invalid_json_returns_400(client):
     r = client.post("/predict", content=b"not json", headers={"content-type": "application/json"})
     assert r.status_code == 400
+    assert r.json()["message"] == "body must be valid JSON"
 
 
 def test_predict_500_without_model(client_no_model):
