@@ -1,4 +1,4 @@
-# Inference app: same Flask app, runs in a container.
+# Inference app: same FastAPI app (served by uvicorn), runs in a container.
 # Build: docker build -f Dockerfile.inference -t mlops-inference .
 # Run: see README or Phase 1 guide.
 

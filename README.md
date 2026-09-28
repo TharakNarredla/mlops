@@ -18,7 +18,7 @@ This project builds an MLOps pipeline from data to API serving: training with ML
 |-----------|-------------|
 | **Training** | Reproducible model training with MLflow tracking and model registry |
 | **Artifacts** | Versioned model files and run metadata |
-| **Inference API** | Flask API with `/predict`, `/metrics`, and `/reload` endpoints |
+| **Inference API** | FastAPI (uvicorn) service with `/predict`, `/health`, `/ready`, `/metrics`, `/reload`, and interactive docs at `/docs` |
 | **Docker** | Containerized inference service |
 | **Kubernetes** | Deployment, Service, and ConfigMap for production-style serving |
 | **Rollback** | Switch model versions via ConfigMap—no redeploy needed |
@@ -43,9 +43,10 @@ Data → Training → MLflow → Artifacts → Docker → Kubernetes → API Ser
 
 ## Tech Stack
 
-- **Python 3.9+** — Training and inference
+- **Python 3.12** — Training and inference (see `Makefile` for the venv setup)
 - **MLflow** — Experiment tracking and model registry
-- **Flask** — Inference API
+- **FastAPI + uvicorn + Pydantic** — Inference API, request/response validation, auto-generated docs
+- **pytest, ruff** — Tests and linting, run locally via `make test` / `make lint` and in CI on every push
 - **Docker** — Containerization
 - **Kubernetes** — Orchestration (minikube for local; same manifests for cloud)
 - **scikit-learn, pandas** — Model and data
@@ -56,22 +57,29 @@ Data → Training → MLflow → Artifacts → Docker → Kubernetes → API Ser
 
 **Prerequisites:** Python 3.9+, Docker, minikube (for K8s), `kubectl`
 
-**Clone and install:**
+**Clone and set up:**
 ```bash
 git clone https://github.com/TharakNarredla/mlops.git
 cd mlops
-pip install -r requirements.txt
+make venv install
+```
+
+**Run tests and lint** (also runs in CI on every push — see `.github/workflows/ci.yml`):
+```bash
+make test
+make lint
 ```
 
 **Train a model:**
 ```bash
-python3 src/train.py
+make train
 ```
 
 **Run inference locally:**
 ```bash
-python3 -m src.serve.app
+make run
 # API runs on http://127.0.0.1:8000
+# Interactive docs (Swagger UI): http://127.0.0.1:8000/docs
 ```
 
 **Deploy to Kubernetes (minikube):**
@@ -97,7 +105,8 @@ python3 -m mlflow server --backend-store-uri sqlite:///mlflow.db --default-artif
 ├── src/
 │   ├── train.py    # Training with MLflow logging
 │   ├── retrain.py  # Retrain decision logic
-│   └── serve/      # Flask inference API
+│   └── serve/      # FastAPI inference API (app.py, schemas.py, load_model.py)
+├── tests/          # pytest tests for training and serving
 ├── k8s/            # Kubernetes manifests (Deployment, Service, ConfigMap, HPA)
 ├── helm/           # Helm chart for inference API
 ├── terraform/      # AWS infra (S3, ECR, EKS) — see terraform/README.md
@@ -123,7 +132,7 @@ kubectl rollout restart deployment/mlops-inference
 
 ## Documentation
 
-- `docs/api.md` — API contract and endpoints
+- `docs/api.md` — API contract and endpoints (also live at `/docs` when the service is running)
 - `docs/ARCHITECTURE.md` — Pipeline overview
 - `docs/MLFLOW.md` — MLflow usage
 - `docs/DOCKER.md` — Docker setup

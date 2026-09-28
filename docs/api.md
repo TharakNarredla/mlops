@@ -6,8 +6,10 @@ This document defines the **API contract** for the production-style inference se
 
 ## Base
 
-- **Service:** Local inference API (e.g. HTTP).
+- **Service:** FastAPI (served by uvicorn), local or in Kubernetes.
 - **Purpose:** Accept a feature vector, return a single prediction (MEDV).
+- **Interactive docs:** `GET /docs` (Swagger UI) and `GET /openapi.json` — generated from `src/serve/schemas.py`, always in sync with the code.
+- **Contract note:** request bodies are validated with Pydantic, but invalid input still returns **`400`** with the `{"error": "invalid_input", "message": "..."}` shape below — not FastAPI's default `422`. This keeps the contract on this page stable across the Flask→FastAPI and FastAPI→Pydantic migrations (Days 5–6).
 
 ---
 
@@ -82,6 +84,17 @@ This document defines the **API contract** for the production-style inference se
   "message": "model not loaded"
 }
 ```
+
+---
+
+## Other endpoints
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/health` | GET | Liveness — process is up. Always `200 {"status": "ok"}`. |
+| `/ready` | GET | Readiness — model and scaler are loaded. `200 {"status": "ready"}` or `503 {"status": "not_ready"}`. Used by Kubernetes readiness probes. |
+| `/metrics` | GET | In-process counters: `total_requests`, `errors_400`, `errors_500`, `latency_avg_sec`, `latency_min_sec`, `latency_max_sec`. Reset on restart; per-process (not aggregated across replicas yet — see Day 46). |
+| `/reload` | GET | Reload the model from disk without restarting. `?latest=1` forces loading the newest run from `experiments/runs.json` (used for rollback/roll-forward). |
 
 ---
 
