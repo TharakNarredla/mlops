@@ -17,7 +17,8 @@ Minikube has its own Docker daemon. Build the image inside minikube so the clust
 
 ```bash
 eval $(minikube docker-env)
-docker build -f Dockerfile.inference.k8s -t mlops-inference:latest .
+make docker-build
+docker build -t mlops-inference:latest -f Dockerfile.k8s-local .
 ```
 
 ---

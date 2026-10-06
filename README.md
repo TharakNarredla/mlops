@@ -85,7 +85,8 @@ make run
 **Deploy to Kubernetes (minikube):**
 ```bash
 eval $(minikube docker-env)
-docker build -f Dockerfile.inference.k8s -t mlops-inference:latest .
+make train && make docker-build
+docker build -t mlops-inference:latest -f Dockerfile.k8s-local .
 kubectl apply -f k8s/
 kubectl port-forward svc/mlops-inference 8000:8000
 ```

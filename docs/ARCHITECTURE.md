@@ -34,8 +34,8 @@ Data → Training → MLflow → Artifacts → Docker → Kubernetes → API Ser
 - **experiments/runs.json:** Run metadata for version resolution
 
 ### Docker
-- **Dockerfile.inference:** Local run with volume mounts for `models/` and `experiments/`
-- **Dockerfile.inference.k8s:** Production-style image with artifacts baked in
+- **Dockerfile:** Multi-stage, non-root image; `models/` and `experiments/` mounted at runtime
+- **Dockerfile.k8s-local:** Local-minikube overlay with artifacts baked in
 
 ### Kubernetes
 - **Deployment:** Runs the inference container

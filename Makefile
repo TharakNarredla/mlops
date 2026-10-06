@@ -1,4 +1,4 @@
-.PHONY: venv install test lint fmt train run clean
+.PHONY: venv install test lint fmt train run docker-build docker-run clean
 
 PY := $(shell command -v python3.12 || command -v python3.11 || command -v python3)
 
@@ -23,6 +23,12 @@ train:
 
 run:
 	.venv/bin/uvicorn src.serve.app:app --host 0.0.0.0 --port 8000
+
+docker-build:
+	docker build -t mlops-inference .
+
+docker-run:
+	docker run --rm -p 8000:8000 -v $(CURDIR)/models:/app/models -v $(CURDIR)/experiments:/app/experiments mlops-inference
 
 clean:
 	rm -rf .venv .pytest_cache .ruff_cache

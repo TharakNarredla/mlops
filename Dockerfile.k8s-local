@@ -1,0 +1,7 @@
+# Local-minikube overlay: the main image + models/experiments baked in, so a Pod is
+# self-contained without a volume mount. For local demos only; real deployments load
+# models from a registry (planned Day 25).
+# Build: make train && docker build -t mlops-inference:latest -f Dockerfile.k8s-local .
+FROM mlops-inference:latest
+COPY --chown=appuser:appuser models/ ./models/
+COPY --chown=appuser:appuser experiments/ ./experiments/

@@ -1,6 +1,35 @@
-# Don't copy these into the image (saves time and size)
-# Note: *.pkl and experiments/runs.json are not committed; bake them in only for local K8s builds.
+# Keep the build context small and free of secrets/junk.
+# Models and run history are mounted at runtime, never baked in.
+
+# VCS / CI / local tooling
+.git
+.github
+.gitignore
+.DS_Store
+.venv
+.pytest_cache
+.ruff_cache
 __pycache__
 *.pyc
-.git
-.DS_Store
+
+# Not needed at runtime
+tests
+docs
+helm
+k8s
+terraform
+plan
+Makefile
+README.md
+requirements-dev.txt
+pyproject.toml
+
+# Generated / local data
+models/*.pkl
+experiments
+mlruns
+mlflow.db
+data
+.env
+*.tfstate*
+*.tfvars

@@ -1,38 +1,33 @@
 # Docker Setup
 
-This project provides two Dockerfiles for the inference service.
+The inference service has one production Dockerfile, plus a small overlay for local minikube demos.
 
 ---
 
-## Dockerfile.inference (Local Development)
+## Dockerfile (main image)
 
-Uses volume mounts for `models/` and `experiments/` so you can train on the host and serve without rebuilding.
+- **Multi-stage:** stage 1 installs dependencies into a virtualenv; stage 2 copies only that venv and `src/` onto a fresh `python:3.12-slim`. Build tools and pip cache never ship.
+- **Non-root:** the app runs as `appuser` (uid 10001), not root.
+- **Models are not baked in:** `models/` and `experiments/` are mounted at runtime, so one image serves any model version.
+- **Healthcheck:** Docker polls `/health`.
 
-**Build:**
+**Build and run:**
 ```bash
-docker build -f Dockerfile.inference -t mlops-inference .
-```
-
-**Run:**
-```bash
-docker run -p 8000:8000 \
-  -v $(pwd)/models:/app/models \
-  -v $(pwd)/experiments:/app/experiments \
-  mlops-inference
+make docker-build
+make train          # generate a model to mount
+make docker-run     # serves on http://127.0.0.1:8000
 ```
 
 ---
 
-## Dockerfile.inference.k8s (Kubernetes)
+## Dockerfile.k8s-local (minikube only)
 
-Bakes `models/` and `experiments/` into the image. Used when deploying to Kubernetes (e.g. minikube) where volume mounts are not used.
+A 3-line overlay on the main image that bakes `models/` and `experiments/` in, so a Pod is self-contained without a volume mount. Uses its own `Dockerfile.k8s-local.dockerignore`.
 
-**Build:**
 ```bash
-# Train first to generate models/
-python3 src/train.py
-
-docker build -f Dockerfile.inference.k8s -t mlops-inference:latest .
+make train
+make docker-build
+docker build -t mlops-inference:latest -f Dockerfile.k8s-local .
 ```
 
 ---

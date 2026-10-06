@@ -1,0 +1,4 @@
+# Overlay build needs models/ and experiments/ (unlike the main image)
+.git
+.venv
+__pycache__
