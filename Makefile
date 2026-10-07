@@ -28,7 +28,7 @@ docker-build:
 	docker build -t mlops-inference .
 
 docker-scan:
-	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache aquasec/trivy:latest image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 mlops-inference:latest
+	docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v trivy-cache:/root/.cache aquasec/trivy:0.75.0 image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 mlops-inference:latest
 
 docker-run:
 	docker run --rm -p 8000:8000 -v $(CURDIR)/models:/app/models -v $(CURDIR)/experiments:/app/experiments mlops-inference

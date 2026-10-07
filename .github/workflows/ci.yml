@@ -44,9 +44,9 @@ jobs:
         run: docker build -t mlops-inference:ci .
 
       - name: Scan image with Trivy (fail on fixable HIGH/CRITICAL)
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: mlops-inference:ci
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: "1"
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:0.75.0 image \
+            --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
+            mlops-inference:ci
