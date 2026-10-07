@@ -33,3 +33,20 @@ jobs:
 
       - name: Test
         run: pytest -q
+
+  docker-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t mlops-inference:ci .
+
+      - name: Scan image with Trivy (fail on fixable HIGH/CRITICAL)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: mlops-inference:ci
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"

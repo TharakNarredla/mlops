@@ -20,6 +20,14 @@ make docker-run     # serves on http://127.0.0.1:8000
 
 ---
 
+## Image size and security scanning
+
+- `requirements.txt` holds **serving dependencies only**; `pandas` and `mlflow` live in `requirements-train.txt`, and test/lint tools in `requirements-dev.txt`. The image installs only the first file.
+- Result: **1.3 GB -> ~600 MB**, and fixable HIGH/CRITICAL CVEs **24 -> 0** (almost all were in `mlflow`, which the API never used).
+- `make docker-scan` runs Trivy locally; CI runs the same scan in the `docker-scan` job and fails the build on any fixable HIGH/CRITICAL finding.
+
+---
+
 ## Dockerfile.k8s-local (minikube only)
 
 A 3-line overlay on the main image that bakes `models/` and `experiments/` in, so a Pod is self-contained without a volume mount. Uses its own `Dockerfile.k8s-local.dockerignore`.
