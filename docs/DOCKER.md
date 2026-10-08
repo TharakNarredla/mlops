@@ -28,6 +28,31 @@ make docker-run     # serves on http://127.0.0.1:8000
 
 ---
 
+## Workers (Gunicorn + uvicorn)
+
+The container starts **Gunicorn**, which runs N worker processes; each worker runs the FastAPI app on uvicorn's event loop. One worker uses one CPU core, so N workers use N cores. Gunicorn also replaces workers that crash, hang (`timeout`), or hit `max_requests`.
+
+Set the count with `WEB_CONCURRENCY` (default 2; see `gunicorn.conf.py`):
+```bash
+docker run -e WEB_CONCURRENCY=2 --cpus=2 ...
+```
+
+**Rule of thumb: workers ~= CPUs given to the container.** Measured with `ab -n 6000 -c 50` against a `--cpus=2` container (single run, same machine, so indicative only):
+
+| Workers | req/s | p95 |
+|---|---|---|
+| 1 | ~2,560 | 23 ms |
+| 2 | ~4,150 | 18 ms |
+| 4 | ~2,730 | 64 ms |
+
+More workers than CPUs makes tail latency worse. In Kubernetes the usual pattern is a small worker count per Pod (match the Pod's CPU limit) and scale out with more Pods via the HPA.
+
+**Known limitation:** `/metrics` counters are per worker, so with >1 worker the endpoint shows only the answering worker's numbers. Fixed properly with Prometheus multiprocess metrics (Day 46).
+
+**Dependency note:** `mlflow 2.17.2` requires `gunicorn<24`, so gunicorn is pinned to 23.x; `uvicorn-worker` needs `uvicorn>=0.36`.
+
+---
+
 ## Dockerfile.k8s-local (minikube only)
 
 A 3-line overlay on the main image that bakes `models/` and `experiments/` in, so a Pod is self-contained without a volume mount. Uses its own `Dockerfile.k8s-local.dockerignore`.

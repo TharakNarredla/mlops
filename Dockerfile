@@ -26,6 +26,7 @@ RUN useradd --create-home --uid 10001 appuser
 WORKDIR /app
 COPY --from=builder /venv /venv
 COPY src/ ./src/
+COPY gunicorn.conf.py .
 
 # Mount points for models/experiments, writable by the app user
 RUN mkdir -p models experiments && chown -R appuser:appuser /app
@@ -36,4 +37,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"
 
-CMD ["uvicorn", "src.serve.app:app", "--host", "0.0.0.0", "--port", "8000"]
+# WEB_CONCURRENCY sets the worker count (default 2); see gunicorn.conf.py
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "src.serve.app:app"]
